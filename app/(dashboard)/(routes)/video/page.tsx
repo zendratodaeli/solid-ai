@@ -2,10 +2,9 @@
 
 import axios from "axios"
 import * as z from "zod"
-import { Code } from "lucide-react";
+import { VideoIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ReactMarkdown from "react-markdown"
 
 import Heading from "@/components/heading";
 
@@ -15,18 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
 import { cn } from "@/lib/utils";
-import { UserAvatar } from "@/components/user-avatar";
-import { BotAvatar } from "@/components/bot-avatar";
 import { useProModal } from "@/hooks/use-pro-modal";
 
-const CodePage = () => {
+const VideoPage = () => {
   const proModal = useProModal();
   const router = useRouter();
-  const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([])
+  const [video, setVideo] = useState<string>()
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,38 +32,15 @@ const CodePage = () => {
   })
   
   const isLoading = form.formState.isSubmitting;
-  
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     
     try {
-      const userMessage: ChatCompletionMessageParam = {
-        role: "user",
-        content: values.prompt,
-        name: "User"
-      };
-  
-      const newMessages = messages.map(msg =>
-        typeof msg === 'string' ? { role: 'system', content: msg, name: "System" } : msg
-      );
-  
-      newMessages.push(userMessage);
-  
-      const response = await axios.post("/api/code", {
-        messages: newMessages
-      });
-  
-      console.log("Response data:", response.data);
-  
-      const responseMessage: ChatCompletionMessageParam = {
-        role: 'assistant',
-        content: response.data,
-        name: "Assistant"
-      };
-  
-      setMessages(current => [...current, userMessage, responseMessage]);
-  
+      setVideo(undefined);
+      const response = await axios.post("/api/video", values);
+      
+      setVideo(response.data[0]);
       form.reset();
-  
     } catch (error: any) {
       if(error?.response?.status === 403) {
         proModal.onOpen();
@@ -85,11 +58,11 @@ const CodePage = () => {
   return (
     <div>
       <Heading 
-        title="Code Generation"
-        description="Generate code using descriptive text."
-        icon={Code}
-        iconColor="text-green-700"
-        bgColor="bg-green-700/10"
+        title="Video Generation"
+        description="Turn your prompt into video"
+        icon={VideoIcon}
+        iconColor="text-orange-700"
+        bgColor="bg-orange-700/10"
       />
 
       <div className="px-4 lg:px-8">
@@ -107,7 +80,7 @@ const CodePage = () => {
                       className="border-0 outline-none focus-visible:ring-0 
                       focus-visible:ring-transparent"
                       disabled={isLoading}
-                      placeholder="Simple tooggle button using react hooks."
+                      placeholder="Clown fish swimming around a coral reef"
                       {...field}
                     />
                   </FormControl>
@@ -128,41 +101,18 @@ const CodePage = () => {
               <Loader />
             </div>
           )}
-          {messages.length === 0 && !isLoading && (
-            <Empty label="No conversation started!"/>
+          {!video && !isLoading && (
+            <Empty label="No music generated!"/>
           )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((message) => (
-              <div 
-                key={message.role}
-                className={cn(
-                  "p-8 w-full flex items-start gap-x-8 rounded-lg",
-                  message.role === "user" ? "bg-white border border-black/10" : "bg-muted"
-                )}
-              >
-                {message.role === "user" ? <UserAvatar/> : <BotAvatar/>}
-                <ReactMarkdown 
-                  components={{
-                    pre: ({ node, ...props}) => (
-                      <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    code: ({ node, ...props}) => (
-                      <code className="bg-black/10 rounded-lg p-1" {...props}/>
-                    )
-                  }}
-                  className="text-sm overflow-hidden leading-7"
-                  >
-                  {message.content || ""}
-                </ReactMarkdown>
-              </div>
-            ))}
-          </div>
+          {video && (
+            <video controls className="w-full aspect-video mt-8 rounded-lg border bg-black">
+              <source src={video} />
+            </video>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-export default CodePage;
+export default VideoPage;

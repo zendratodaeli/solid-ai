@@ -20,8 +20,10 @@ import { Loader } from "@/components/loader";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
+import { useProModal } from "@/hooks/use-pro-modal";
 
 const ConversationPage = () => {
+  const proModal = useProModal();
   const router = useRouter();
   const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([])
   
@@ -98,7 +100,11 @@ const ConversationPage = () => {
       form.reset();
   
     } catch (error: any) {
-      console.error("Request failed with error:", error);
+      
+      if(error?.response?.status === 403) {
+        proModal.onOpen();
+      }
+
       if (error.response && error.response.status === 429) {
         console.error("Rate limit exceeded. Details:", error.response.data);
         alert("We have temporarily exceeded our capacity to generate responses. Please try again later.");

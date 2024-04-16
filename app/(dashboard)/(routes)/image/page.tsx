@@ -20,8 +20,10 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
+import { useProModal } from "@/hooks/use-pro-modal";
 
 const ImagePage = () => {
+  const proModal = useProModal();
   const router = useRouter();
   const [images, setImages] = useState<string[]>([]);
   
@@ -51,7 +53,10 @@ const ImagePage = () => {
       form.reset();
   
     } catch (error: any) {
-      console.error("Request failed with error:", error);
+      if(error?.response?.status === 403) {
+        proModal.onOpen();
+      }
+
       if (error.response && error.response.status === 429) {
         console.error("Rate limit exceeded. Details:", error.response.data);
         alert("We have temporarily exceeded our capacity to generate responses. Please try again later.");

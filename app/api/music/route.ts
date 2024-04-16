@@ -2,18 +2,18 @@ import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 import { checkSubscription } from "@/lib/subscription";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 
+import Replicate from "replicate";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY 
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
 });
 
 export async function POST(req: Request) {
   try {
     const { userId } = auth();
     const body = await req.json();
-    const { messages } = body;
+    const { prompt } = body;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -23,8 +23,8 @@ export async function POST(req: Request) {
       return new NextResponse("OpenAI API key not configured", { status: 500 });
     };
 
-    if (!messages || !Array.isArray(messages) || messages.some(msg => typeof msg !== 'object' || !msg.role || !msg.content)) {
-      return new NextResponse("Messages must be an array of objects with 'role' and 'content' fields", { status: 400 });
+    if (!prompt) {
+      return new NextResponse("Prompt is required", { status: 401 });
     };
 
     const freeTrial = await checkApiLimit();
@@ -34,23 +34,23 @@ export async function POST(req: Request) {
       return new NextResponse("Free trial has expired", {status: 403})
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
-      temperature: 1,
-      messages
-    });
+    const input = {
+      prompt_b: prompt
+    };
+    const response = await replicate.run("riffusion/riffusion:8cf61ea6c56afd61d8f5b9ffd14d7c216c0a93844ce2d82ac1c9ecc9c7f24e05", 
+    { input });
 
     if(!isPro) {
       await increaseApiLimit();
     }
 
-    return new NextResponse(JSON.stringify(response.choices[0].message.content), {
+    return new NextResponse(JSON.stringify(response), {
       headers: { 'Content-Type': 'application/json' },
       status: 200 
     });
 
   } catch (error) {
-    console.error("[CONVERSATION_ERROR]", error);
+    console.error("[MUSIC_ERROR]", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 }
