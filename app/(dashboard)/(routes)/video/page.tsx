@@ -18,6 +18,7 @@ import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
 import { cn } from "@/lib/utils";
 import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 const VideoPage = () => {
   const proModal = useProModal();
@@ -44,11 +45,13 @@ const VideoPage = () => {
     } catch (error: any) {
       if(error?.response?.status === 403) {
         proModal.onOpen();
+      } else {
+        toast.error("Something went wrong!")
       }
       
       if (error.response && error.response.status === 429) {
         console.error("Rate limit exceeded. Details:", error.response.data);
-        alert("We have temporarily exceeded our capacity to generate responses. Please try again later.");
+        toast.error("We have temporarily exceeded our capacity to generate responses. Please try again later.");
       }
     } finally {
       router.refresh();
