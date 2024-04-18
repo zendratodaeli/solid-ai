@@ -81,7 +81,7 @@ const SideBar = ({
               src="/logo.png"
             />
           </div>
-          <h1 className={cn("text-2xl font-bold", montserrat.className)}>Intelligence</h1>
+          <h1 className={cn("text-2xl font-bold", montserrat.className)}>Solid AI</h1>
         </Link>
         <div className="space-y-1">
           {routes.map(route => (
