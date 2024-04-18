@@ -27,7 +27,7 @@ export const LandingNavbar = () => {
         </div>
 
         <h1 className={cn("text-2xl font-bold text-white", font.className)}>
-          Intelligence
+          Solid AI
         </h1>
       </Link>
 
