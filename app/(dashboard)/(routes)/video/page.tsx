@@ -105,7 +105,7 @@ const VideoPage = () => {
             </div>
           )}
           {!video && !isLoading && (
-            <Empty label="No music generated!"/>
+            <Empty label="No video generated!"/>
           )}
           {video && (
             <video controls className="w-full aspect-video mt-8 rounded-lg border bg-black">
