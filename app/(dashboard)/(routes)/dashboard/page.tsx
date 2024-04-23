@@ -2,45 +2,35 @@
 
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { ArrowRight, ImageIcon, MessageSquare, Music, Video, VideoIcon } from "lucide-react"
+import { ArrowRight, CodeIcon, ImageIcon, MessageSquare, Music, Text, Video, VideoIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 const tools = [
   {
     label: "Conversation",
     icon: MessageSquare,
-    color: "text-violet-500",
-    bgColor: "bg-violet-500/10",
-    href: "/conversation"
+    href: "/conversation",
+    color: "text-violet-500"
   },
-  // {
-  //   label: "Music Generation",
-  //   icon: Music,
-  //   color: "text-emerald-500",
-  //   bgColor: "bg-emerald-500/10",
-  //   href: "/music"
-  // },
+  {
+    label: "Code Generation",
+    icon: CodeIcon,
+    href: "/code",
+    color: "text-green-700"
+  },
+  {
+    label: "Transcribe Audio & Video",
+    icon: Text,
+    color: "text-emerald-500",
+    bgColor: "bg-emerald-500/10",
+    href: "/transcribe-audio"
+  },
   {
     label: "Image Generation",
     icon: ImageIcon,
-    color: "text-pink-700",
-    bgColor: "bg-pink-700/10",
-    href: "/image"
+    href: "/image",
+    color: "text-pink-700"
   },
-  // {
-  //   label: "Video Generation",
-  //   icon: VideoIcon,
-  //   color: "text-orange-700",
-  //   bgColor: "bg-orange-700/10",
-  //   href: "/video"
-  // },
-  {
-    label: "Code Generation",
-    icon: ImageIcon,
-    color: "text-green-700",
-    bgColor: "bg-green-700/10",
-    href: "/code"
-  }
 ]
 
 export default function DashboardPage() {

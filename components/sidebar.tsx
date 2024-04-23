@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
-import { CodeIcon, ImageIcon, LayoutDashboard, MessageSquare, MusicIcon, Settings, VideoIcon } from "lucide-react"
+import { CodeIcon, ImageIcon, LayoutDashboard, MessageSquare, MusicIcon, Settings, Text, VideoIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { FreeCounter } from "@/components/free-counter"
 
@@ -28,6 +28,19 @@ const routes = [
     color: "text-violet-500"
   },
   {
+    label: "Code Generation",
+    icon: CodeIcon,
+    href: "/code",
+    color: "text-green-700"
+  },
+  {
+    label: "Transcribe Audio & Video",
+    icon: Text,
+    color: "text-emerald-500",
+    bgColor: "bg-emerald-500/10",
+    href: "/transcribe-audio"
+  },
+  {
     label: "Image Generation",
     icon: ImageIcon,
     href: "/image",
@@ -45,12 +58,6 @@ const routes = [
   //   href: "/music",
   //   color: "text-emerald-500"
   // },
-  {
-    label: "Code Generation",
-    icon: CodeIcon,
-    href: "/code",
-    color: "text-green-700"
-  },
   {
     label: "Settings",
     icon: Settings,

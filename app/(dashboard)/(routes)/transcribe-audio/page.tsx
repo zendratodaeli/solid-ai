@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import languages from "@/lib/language";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-import { ArrowBigRight } from "lucide-react";
+import { ArrowBigRight, Text } from "lucide-react";
 import { Loader } from "@/components/loader";
+import Heading from "@/components/heading";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const AudioTranslate = () => {
   const [loading, setLoading] = useState(false);
@@ -14,9 +17,9 @@ const AudioTranslate = () => {
   const [generatedTranslation, setGeneratedTranslation] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
 
-  const url = "https://api.openai.com/v1/audio/transcriptions";
-
+  
   const transcribe = async (): Promise<{ text: string } | null> => {
+    const url = "https://api.openai.com/v1/audio/transcriptions";
     if (!selectedFile) {
       toast.error('No file selected.');
       return null;
@@ -27,8 +30,8 @@ const AudioTranslate = () => {
     formData.append("model", "whisper-1");
     formData.append("response_format", "verbose_json");
     formData.append("language", language);
-    const openAIKey = process.env.OPENAI_API_KEY;
-    
+    const openAIKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+   
 
     try {
       const response = await axios.post(url, formData, {
@@ -40,7 +43,7 @@ const AudioTranslate = () => {
       toast.error('Invalid response format.');
       return null;
     } catch (error) {
-      console.error('Error during transcription:', error);
+      toast.error('Error during transcription');
       return null;
     }
   };
@@ -51,10 +54,10 @@ const AudioTranslate = () => {
 
     const transcribed = await transcribe();
     if (transcribed) {
-      console.log(transcribed.text);
       setGeneratedTranslation(transcribed.text);
     } else {
-      console.log('Failed to transcribe audio.');
+
+      toast.error('Failed to transcribe audio.');
     }
     setLoading(false);
   };
@@ -77,27 +80,20 @@ const AudioTranslate = () => {
 
   return (
     <div className=" ml-30">
-      <div className="max-w-full w-full">
-        <div className=" flex flex-row mt-10 items-center space-x-3">
-          <Image
-            src="/logo.png"
-            width={30}
-            height={30}
-            alt="icon"
-            className="mb-5 sm:mb-0"
-          />
-          <div>
-            <p className=" text-left font-medium">
-              Upload Audio File {" "}
-              <span className=" text-slate-500">)</span>
-            </p>
-          </div>
+      <Heading 
+        title="Transcribe"
+        description="Our most advanced transcribe model"
+        icon={Text}
+        iconColor="text-violet-500"
+        bgColor="bg-emerald-500/10"
+      />
+      <div className="px-4 lg:px-8">
+        <div>
+          <p className=" text-left font-medium">
+            Upload Audio & Video
+          </p>
         </div>
-
-        <label className="block my-1 ml-1 text-sm text-left font-medium text-gray-900 dark:text-white">
-          Upload File
-        </label>
-        <input
+        <Input
           className="block mb-2 w-full text-sm text-gray-900 border border-gray-500 rounded-lg"
           type="file" 
           accept="audio/*"
@@ -109,7 +105,6 @@ const AudioTranslate = () => {
         </p>
 
         <div className=" my2 text-sm text-gray-500 dark:text-gray-300">
-          <Image src="/logo.png" alt="icon-2" width={30} height={30} />
           <p className=" text-left font-medium">Choose your language</p>
         </div>
 
@@ -126,21 +121,19 @@ const AudioTranslate = () => {
         </select>
 
         {!loading && (
-          <button 
-            className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8"
+          <Button 
+            className="col-span-12 lg:col-span-2 w-full mt-2"
             onClick={translateAudio}
+            disabled={loading}
           >
-            Transcribe {"->"}
-          </button>
+            Transcribe
+          </Button>
         )}
 
         {loading && (
-          <button 
-            className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8"
-            disabled
-          >
+          <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted mt-4">
             <Loader />
-          </button>
+          </div>
         )}
 
         {generatedTranslation && (
