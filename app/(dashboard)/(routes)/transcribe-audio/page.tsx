@@ -10,6 +10,7 @@ import { Loader } from "@/components/loader";
 import Heading from "@/components/heading";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Empty } from "@/components/empty";
 
 const AudioTranslate = () => {
   const [loading, setLoading] = useState(false);
@@ -134,6 +135,10 @@ const AudioTranslate = () => {
           <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted mt-4">
             <Loader />
           </div>
+        )}
+
+        {!language && !loading && (
+            <Empty label="No audio transcribe!"/>
         )}
 
         {generatedTranslation && (
