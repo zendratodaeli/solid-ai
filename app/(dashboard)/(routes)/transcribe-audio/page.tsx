@@ -137,7 +137,7 @@ const AudioTranslate = () => {
           </div>
         )}
 
-        {!language && !loading && (
+        {!loading && !loading && (
             <Empty label="No audio transcribe!"/>
         )}
 
