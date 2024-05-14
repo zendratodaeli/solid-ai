@@ -5,8 +5,13 @@ import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 import { checkSubscription } from "@/lib/subscription";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY 
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY 
+// });
+
+const Groq = require("groq-sdk");
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
 });
 
 const instructionMessage: 
@@ -26,7 +31,7 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     };
 
-    if (!process.env.OPENAI_API_KEY) { 
+    if (!process.env.GROQ_API_KEY) { 
       return new NextResponse("OpenAI API key not configured", { status: 500 });
     };
 
@@ -41,8 +46,8 @@ export async function POST(req: Request) {
       return new NextResponse("Free trial has expired", {status: 403})
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+    const response = await groq.chat.completions.create({
+      model: "llama3-8b-8192",
       temperature: 1,
       messages: [instructionMessage, ...messages],
     });
