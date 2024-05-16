@@ -137,7 +137,7 @@ const AudioTranslate = () => {
           </div>
         )}
 
-        {!loading && !loading && (
+        {!loading && !loading && !generatedTranslation && (
             <Empty label="No audio transcribe!"/>
         )}
 
@@ -155,9 +155,6 @@ const AudioTranslate = () => {
             >
               <p>{generatedTranslation}</p>
             </div>
-            <p className=" my-1 text-sm text-gray-500 dark:text-gray-300">
-              Click to copy
-            </p>
             <div className=" mb-[-80px]"/>
           </>
         )}
