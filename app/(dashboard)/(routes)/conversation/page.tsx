@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import axios from "axios"
-import * as z from "zod"
+import axios from "axios";
+import * as z from "zod";
 import { MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,72 +22,74 @@ import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import { useProModal } from "@/hooks/use-pro-modal";
 import toast from "react-hot-toast";
+import ReactMarkdown from "react-markdown";
 
 const ConversationPage = () => {
   const proModal = useProModal();
   const router = useRouter();
-  const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([])
-  
+  const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: ""
-    }
-  })
-  
+      prompt: "",
+    },
+  });
+
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    
     try {
       const userMessage: ChatCompletionMessageParam = {
         role: "user",
         content: values.prompt,
-        name: "User"
+        name: "User",
       };
-  
-      const newMessages = messages.map(msg =>
-        typeof msg === 'string' ? { role: 'system', content: msg, name: "System" } : msg
+
+      const newMessages = messages.map((msg) =>
+        typeof msg === "string"
+          ? { role: "system", content: msg, name: "System" }
+          : msg
       );
-  
+
       newMessages.push(userMessage);
-  
+
       const response = await axios.post("/api/conversation", {
-        messages: newMessages
+        messages: newMessages,
       });
-  
+
       console.log("Response data:", response.data);
-  
+
       const responseMessage: ChatCompletionMessageParam = {
-        role: 'assistant',
+        role: "assistant",
         content: response.data,
-        name: "Assistant"
+        name: "Assistant",
       };
-  
-      setMessages(current => [...current, userMessage, responseMessage]);
-  
+
+      setMessages((current) => [...current, userMessage, responseMessage]);
+
       form.reset();
-  
     } catch (error: any) {
-      
-      if(error?.response?.status === 403) {
+      if (error?.response?.status === 403) {
         proModal.onOpen();
       } else {
-        toast.error("Something went wrong!")
+        toast.error("Something went wrong!");
       }
 
       if (error.response && error.response.status === 429) {
         console.error("Rate limit exceeded. Details:", error.response.data);
-        toast.error("We have temporarily exceeded our capacity to generate responses. Please try again later.");
+        toast.error(
+          "We have temporarily exceeded our capacity to generate responses. Please try again later."
+        );
       }
     } finally {
       router.refresh();
     }
-  }
+  };
 
   return (
     <div>
-      <Heading 
+      <Heading
         title="Conversation"
         description="Our most advanced conversation model"
         icon={MessageSquare}
@@ -97,29 +99,33 @@ const ConversationPage = () => {
 
       <div className="px-4 lg:px-8">
         <div>
-          <Form {...form} >
-            <form 
+          <Form {...form}>
+            <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm
               grid grid-cols-12 gap-2"
             >
-              <FormField name="prompt" render={({field}) => (
-                <FormItem className="col-span-12 lg:col-span-10">
-                  <FormControl className="m-0 p-0">
-                    <Input
-                      className="border-0 outline-none focus-visible:ring-0 
+              <FormField
+                name="prompt"
+                render={({ field }) => (
+                  <FormItem className="col-span-12 lg:col-span-10">
+                    <FormControl className="m-0 p-0">
+                      <Input
+                        className="border-0 outline-none focus-visible:ring-0 
                       focus-visible:ring-transparent"
-                      disabled={isLoading}
-                      placeholder="How do I calculate the radius of a circle?"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+                        disabled={isLoading}
+                        placeholder="How do I calculate the radius of a circle?"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-              <Button className="col-span-12 
-                lg:col-span-2 w-full" 
-                disabled={isLoading}>
+              <Button
+                className="col-span-12 
+                lg:col-span-2 w-full"
+                disabled={isLoading}
+              >
                 Generate
               </Button>
             </form>
@@ -132,31 +138,48 @@ const ConversationPage = () => {
             </div>
           )}
           {messages.length === 0 && !isLoading && (
-            <Empty label="No conversation started!"/>
+            <Empty label="No conversation started!" />
           )}
           <div className="flex flex-col-reverse gap-y-4">
             {messages.map((message) => (
-              <div 
+              <div
                 key={message.role}
                 className={cn(
                   "p-8 w-full flex items-start gap-x-8 rounded-lg",
-                  message.role === "user" ? "bg-white border border-black/10" : "bg-muted"
+                  message.role === "user"
+                    ? "bg-white border border-black/10"
+                    : "bg-muted"
                 )}
               >
-                {message.role === "user" ? <UserAvatar/> : <BotAvatar/>}
-                <p className="text-sm">
-                  {typeof message.content === 'string' ? message.content :
-                  Array.isArray(message.content) ? message.content.map(part => 
-                    'text' in part ? part.text : ''
-                  ).join(' ') : ''}
-                </p>
+                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                <ReactMarkdown
+                  components={{
+                    pre: ({ node, ...props }) => (
+                      <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                        <pre {...props} />
+                      </div>
+                    ),
+                    code: ({ node, ...props }) => (
+                      <code className="bg-black/10 rounded-lg p-1" {...props} />
+                    ),
+                  }}
+                  className="text-sm overflow-hidden leading-7"
+                >
+                  {typeof message.content === "string"
+                    ? message.content
+                    : Array.isArray(message.content)
+                    ? message.content
+                        .map((part) => ("text" in part ? part.text : ""))
+                        .join(" ")
+                    : ""}
+                </ReactMarkdown>
               </div>
             ))}
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default ConversationPage;

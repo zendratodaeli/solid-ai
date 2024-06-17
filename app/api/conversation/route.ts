@@ -3,6 +3,7 @@ import { checkSubscription } from "@/lib/subscription";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
 
 // const openai = new OpenAI({
@@ -13,6 +14,12 @@ const Groq = require("groq-sdk");
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
+
+const instructionMessage: 
+ChatCompletionMessageParam = {
+  role: "system",
+  content: "You must answer all the question and with their own languaged they used when they asked you!"
+}
 
 export async function POST(req: Request) {
   try {
@@ -42,8 +49,14 @@ export async function POST(req: Request) {
     const response = await groq.chat.completions.create({
       model: "llama3-8b-8192",
       temperature: 1,
-      messages
+      messages: [instructionMessage, ...messages]
     });
+
+    // const response = await openai.chat.completions.create({
+    //   model: "gpt-4-turbo",
+    //   temperature: 1,
+    //   messages: [instructionMessage, ...messages]
+    // });
 
     if(!isPro) {
       await increaseApiLimit();

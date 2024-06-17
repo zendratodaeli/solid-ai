@@ -10,7 +10,7 @@ const NavBar = async () => {
 
   return (
     <div className="flex items-center p-4">
-      <MobileSidebar 
+      <MobileSidebar  
         isPro={isPro}
         apiLimitCount={apiLimitCount} 
       />
